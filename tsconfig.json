@@ -8,7 +8,15 @@
     "strict": true,
     "baseUrl": "./",
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "generated/prisma": [
+        "generated/prisma"
+      ]
+      // ★ 추가
+    }
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

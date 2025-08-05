@@ -56,3 +56,9 @@ docker-compose*dev.yml
 
 test-thumbnail.jpeg
 dist
+
+/generated/prisma
+
+/generated/prisma
+
+/generated/prisma

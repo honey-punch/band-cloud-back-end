@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @unique
+  userId      String   @unique
+  password    String
+  name        String
+  groupId     String?
+  createdDate DateTime @default(now())
+
+  group   Group?  @relation(fields: [groupId], references: [id])
+  assets  Asset[]
+  replies Reply[]
+}
+
+model Group {
+  id          String   @id @unique
+  name        String
+  description String?
+  createdDate DateTime @default(now())
+
+  users User[]
+}
+
+model Asset {
+  id               String   @id @unique
+  title            String
+  path             String
+  originalFileName String
+  userId           String
+  createdDate      DateTime @default(now())
+  isPublic         Boolean  @default(true)
+  description      String?
+
+  user    User    @relation(fields: [userId], references: [id])
+  replies Reply[]
+}
+
+model Reply {
+  id          String   @id @unique
+  content     String
+  userId      String
+  assetId     String
+  createdDate DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  asset Asset @relation(fields: [assetId], references: [id])
+}
