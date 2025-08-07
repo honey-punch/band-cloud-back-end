@@ -1,7 +1,8 @@
 type Asset = {
   id: string;
   title: string;
-  path: string;
+  assetPath: string;
+  thumbnailPath: string;
   originalFileName: string;
   userId: string;
   createdDate: string;

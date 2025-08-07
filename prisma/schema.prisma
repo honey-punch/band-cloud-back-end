@@ -47,7 +47,8 @@ model Asset {
 
     id                  String  @id @unique
     title               String
-    path                String
+    asset_path          String
+    thumbnail_path      String
     original_file_name  String
     user_id             String
     created_date        DateTime @default(now())

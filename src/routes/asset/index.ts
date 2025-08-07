@@ -15,7 +15,8 @@ router.get('/search', async (req, res) => {
   const mappedResponse: Asset[] = response.map((asset) => ({
     id: asset.id,
     title: asset.title,
-    path: asset.path,
+    assetPath: asset.asset_path,
+    thumbnailPath: asset.thumbnail_path,
     originalFileName: asset.original_file_name,
     userId: asset.user_id,
     createdDate: asset.created_date.toISOString(),
@@ -36,6 +37,35 @@ router.get('/search', async (req, res) => {
       currentPage,
       size,
     },
+  };
+
+  res.send(responseBody);
+});
+
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  const response = await prisma.asset.findUnique({ where: { id } });
+
+  if (!response) {
+    return res.status(404).send({ message: 'Not found. Check id.' });
+  }
+
+  const asset: Asset = {
+    id: response.id,
+    title: response.title,
+    assetPath: response.asset_path,
+    thumbnailPath: response.thumbnail_path,
+    originalFileName: response.original_file_name,
+    userId: response.user_id,
+    createdDate: response.created_date.toISOString(),
+    isPublic: response.is_public,
+    ...(response.description ? { description: response.description } : {}),
+    isDeleted: response.is_deleted,
+  };
+
+  const responseBody: ApiResponse<Asset> = {
+    result: asset,
   };
 
   res.send(responseBody);
