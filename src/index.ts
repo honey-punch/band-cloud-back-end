@@ -12,10 +12,6 @@ import { router as fileRouter } from './routes/file';
 const app = express();
 const port = process.env.PORT;
 
-app.get('/', (req, res) => {
-  res.send('이것은 BAND CLOUD의 API서버이다.');
-});
-
 app.use(express.json());
 app.use(cookieParser());
 app.use('/api/user', userRouter);

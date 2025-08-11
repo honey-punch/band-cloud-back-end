@@ -2,13 +2,11 @@ import { Router } from 'express';
 import { PrismaClient } from 'generated/prisma';
 import { generateSearchQuery } from '../utils';
 
-import { verifyToken } from '../middleware';
-
 export const router = Router();
 const prisma = new PrismaClient();
 
 // 사용자 리스트
-router.get('/search', verifyToken, async (req, res) => {
+router.get('/search', async (req, res) => {
   const query: SearchQuery = req.query;
   const { where, skip, take, size, page } = generateSearchQuery(query);
 
@@ -21,6 +19,7 @@ router.get('/search', verifyToken, async (req, res) => {
     ...(user.group_id ? { groupId: user.group_id } : {}),
     createdDate: user.created_date.toISOString(),
     isDeleted: user.is_deleted,
+    ...(user.avatar_path ? { avatarPath: user.avatar_path } : {}),
   }));
 
   const totalCount = await prisma.user.count({ where });
@@ -57,6 +56,7 @@ router.get('/:id', async (req, res) => {
     ...(response.group_id ? { groupId: response.group_id } : {}),
     createdDate: response.created_date.toISOString(),
     isDeleted: response.is_deleted,
+    ...(response.avatar_path ? { avatarPath: response.avatar_path } : {}),
   };
 
   const responseBody: ApiResponse<User> = {

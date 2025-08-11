@@ -5,4 +5,5 @@ type User = {
   groupId?: string | null;
   createdDate: string;
   isDeleted: boolean;
+  avatarPath?: string | null;
 };
