@@ -3,6 +3,7 @@ import { PrismaClient } from 'generated/prisma';
 
 import jwt from 'jsonwebtoken';
 import { verifyToken } from '../middleware';
+import { generateUser } from '../utils';
 
 export const router = Router();
 const prisma = new PrismaClient();
@@ -26,8 +27,10 @@ router.post('/login', async (req, res) => {
 
   const token = jwt.sign({ payload: userId }, jwtSecretKey || '', { expiresIn: '30m' });
 
+  const user = generateUser(response);
+
   res.cookie('token', token, { httpOnly: true, maxAge: 60 * 1000 * 30, sameSite: 'lax' });
-  res.send({ result: token });
+  res.send({ result: user });
 });
 
 // 로그아웃
@@ -51,15 +54,7 @@ router.get('/me', verifyToken, async (req, res) => {
     return res.status(404).send({ result: 'User not found' });
   }
 
-  const user: User = {
-    id: response.id,
-    userId: response.user_id,
-    name: response.name,
-    ...(response.group_id ? { groupId: response.group_id } : {}),
-    createdDate: response.created_date.toISOString(),
-    isDeleted: response.is_deleted,
-  };
-
+  const user: User = generateUser(response);
   const responseBody: ApiResponse<User> = {
     result: user,
   };

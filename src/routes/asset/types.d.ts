@@ -10,3 +10,13 @@ type Asset = {
   description?: string | null;
   isDeleted: boolean;
 };
+
+type CreateAssetBody = {
+  userId: string;
+  originalFileName: string;
+};
+
+type UploadBody = {
+  assetId: string;
+  multipartFile: Blob;
+};

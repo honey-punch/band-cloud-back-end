@@ -65,6 +65,7 @@ router.get('/thumbnail/:id', async (req, res) => {
   res.sendFile(absoluteFilePath);
 });
 
+// 아바타
 router.get('/avatar/:id', async (req, res) => {
   const { id } = req.params;
 

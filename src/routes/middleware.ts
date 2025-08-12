@@ -9,7 +9,7 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ message: 'No token' });
+    return res.status(401).json({ result: 'No token' });
   }
 
   try {
@@ -18,6 +18,6 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
     next();
   } catch (error) {
     console.log(error);
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ result: 'Invalid token' });
   }
 }

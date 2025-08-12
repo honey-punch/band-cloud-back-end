@@ -46,7 +46,7 @@ model Group {
 model Asset {
     @@map("assets")
 
-    id                  String  @id @unique
+    id                  String  @id @unique @default(uuid())
     title               String
     asset_path          String
     thumbnail_path      String
