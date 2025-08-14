@@ -1,4 +1,4 @@
-import { Asset as PrismaAsset, User as PrismaUser } from 'generated/prisma';
+import { Asset as PrismaAsset, User as PrismaUser, Reply as PrismaReply } from 'generated/prisma';
 
 export function generateSearchQuery(query: SearchQuery) {
   const isDeleted = query.isDeleted === 'true';
@@ -39,5 +39,16 @@ export function generateUser(prismaUser: PrismaUser): User {
     ...(prismaUser.group_id ? { groupId: prismaUser.group_id } : {}),
     createdDate: prismaUser.created_date.toISOString(),
     isDeleted: prismaUser.is_deleted,
+  };
+}
+
+export function generateReply(prismaReply: PrismaReply): Reply {
+  return {
+    id: prismaReply.id,
+    content: prismaReply.content,
+    userId: prismaReply.user_id,
+    assetId: prismaReply.asset_id,
+    createdDate: prismaReply.created_date.toISOString(),
+    isDeleted: prismaReply.is_deleted,
   };
 }

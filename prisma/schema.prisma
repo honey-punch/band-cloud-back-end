@@ -24,7 +24,7 @@ model User {
     group_id        String?
     created_date    DateTime  @default(now())
     is_deleted      Boolean   @default(false)
-    avatar_path     String
+    avatar_path     String?
 
     groups          Group?   @relation(fields: [group_id], references: [id])
     assets          Asset[]
@@ -64,7 +64,7 @@ model Asset {
 model Reply {
     @@map("replies")
 
-    id                      String  @id @unique
+    id                      String  @id @unique @default(uuid())
     content                 String
     user_id                 String
     asset_id                String
