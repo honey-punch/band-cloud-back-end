@@ -20,7 +20,7 @@ router.get('/audio/:id', async (req, res) => {
   const asset = await prisma.asset.findUnique({ where: { id } });
 
   if (!asset) {
-    return res.status(404).send({ message: 'Not found. Check id.' });
+    return res.status(404).send({ result: 'Not found. Check id.' });
   }
 
   const absoluteFilePath = path.join(storagePath, asset.asset_path);
@@ -46,7 +46,7 @@ router.get('/thumbnail/:id', async (req, res) => {
   const asset = await prisma.asset.findUnique({ where: { id } });
 
   if (!asset) {
-    return res.status(404).send({ message: 'Not found. Check id.' });
+    return res.status(404).send({ result: 'Not found. Check id.' });
   }
 
   const absoluteFilePath = path.join(storagePath, asset.thumbnail_path);
@@ -72,10 +72,10 @@ router.get('/avatar/:id', async (req, res) => {
   const user = await prisma.user.findUnique({ where: { id } });
 
   if (!user) {
-    return res.status(404).send({ message: 'Not found. Check id.' });
+    return res.status(404).send({ result: 'Not found. Check id.' });
   }
 
-  const absoluteFilePath = path.join(storagePath, user.avatar_path);
+  const absoluteFilePath = path.join(storagePath, user.avatar_path || '');
 
   if (!fs.existsSync(absoluteFilePath)) {
     return res.status(404).json({ error: 'Avatar file not found on disk' });

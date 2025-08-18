@@ -6,13 +6,16 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
+const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+
 const storagePath = process.env.STORAGE_PATH || '/';
 const audioPath = process.env.AUDIO_PATH || '/';
+const thumbnailPath = process.env.THUMBNAIL_PATH || '/';
 const tempPath = path.join(storagePath, 'temp');
 if (!fs.existsSync(tempPath)) {
   fs.mkdirSync(tempPath, { recursive: true });
 }
-const upload = multer({ dest: tempPath });
+const upload = multer({ dest: tempPath, limits: { fileSize: MAX_SIZE } });
 
 export const router = Router();
 const prisma = new PrismaClient();
@@ -49,7 +52,7 @@ router.get('/:id', async (req, res) => {
   const response = await prisma.asset.findUnique({ where: { id } });
 
   if (!response) {
-    return res.status(404).send({ message: 'Not found. Check id.' });
+    return res.status(404).send({ result: 'Not found. Check id.' });
   }
 
   const asset: Asset = generateAsset(response);
@@ -66,7 +69,7 @@ router.post('', verifyToken, async (req, res) => {
   const { userId, originalFileName } = body;
 
   if (!userId) {
-    return res.status(400).send({ message: 'userId is required' });
+    return res.status(400).send({ result: 'userId is required' });
   }
 
   const response = await prisma.asset.create({
@@ -80,7 +83,7 @@ router.post('', verifyToken, async (req, res) => {
   });
 
   if (!response) {
-    return res.status(400).send({ message: 'Failed to create asset' });
+    return res.status(400).send({ result: 'Failed to create asset' });
   }
 
   const asset: Asset = generateAsset(response);
@@ -100,7 +103,7 @@ router.post('/upload', verifyToken, upload.single('multipartFile'), async (req, 
   const createdAsset = await prisma.asset.findUnique({ where: { id: assetId } });
 
   if (!createdAsset) {
-    return res.status(404).send({ message: 'Not found. Check assetId.' });
+    return res.status(404).send({ result: 'Not found. Check assetId.' });
   }
 
   if (!fs.existsSync(storagePath + audioPath)) {
@@ -123,4 +126,50 @@ router.post('/upload', verifyToken, upload.single('multipartFile'), async (req, 
   fs.appendFileSync(actualPath, fs.readFileSync(tempPath));
   fs.unlinkSync(tempPath);
   res.send({ result: 'Chunk appended' });
+});
+
+// 에셋 수정
+router.put('/:assetId', verifyToken, async (req, res) => {});
+
+// 에셋 썸네일 수정
+router.put('/:assetId/thumbnail', verifyToken, upload.single('multipartFile'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).send({ result: 'Invalid file' });
+  }
+
+  if (req.file.size > MAX_SIZE) {
+    return res.status(400).json({ result: 'Upload only files under 10MB' });
+  }
+
+  const { assetId } = req.params;
+
+  const response = await prisma.asset.findUnique({ where: { id: assetId } });
+
+  if (!response) {
+    return res.status(404).send({ result: 'Not found. Check assetId.' });
+  }
+
+  const ext = path.extname(req.file.originalname);
+  const actualPath = path.join(storagePath + thumbnailPath, `${assetId}${ext}`);
+  const targetPath = `${thumbnailPath}/${assetId}${ext}`;
+
+  if (response.thumbnail_path) {
+    const prevPath = path.join(storagePath, response.thumbnail_path);
+    if (fs.existsSync(prevPath)) {
+      fs.unlinkSync(prevPath);
+    }
+  }
+
+  fs.renameSync(req.file.path, actualPath);
+
+  const updatedAsset = await prisma.asset.update({
+    where: { id: assetId },
+    data: { thumbnail_path: targetPath },
+  });
+
+  const responseBody: ApiResponse<Asset> = {
+    result: generateAsset(updatedAsset),
+  };
+
+  res.send(responseBody);
 });

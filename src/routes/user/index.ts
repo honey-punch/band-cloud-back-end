@@ -1,6 +1,17 @@
 import { Router } from 'express';
 import { PrismaClient } from 'generated/prisma';
 import { generateSearchQuery, generateUser } from '../utils';
+import path from 'path';
+import fs from 'fs';
+import multer from 'multer';
+
+const storagePath = process.env.STORAGE_PATH || '/';
+const avatarPath = process.env.AVATAR_PATH || '/';
+const tempPath = path.join(storagePath, 'temp');
+if (!fs.existsSync(tempPath)) {
+  fs.mkdirSync(tempPath, { recursive: true });
+}
+const upload = multer({ dest: tempPath });
 
 export const router = Router();
 const prisma = new PrismaClient();
@@ -37,7 +48,7 @@ router.get('/:id', async (req, res) => {
   const response = await prisma.user.findUnique({ where: { id } });
 
   if (!response) {
-    return res.status(404).send({ message: 'Not found. Check id.' });
+    return res.status(404).send({ result: 'Not found. Check id.' });
   }
 
   const user: User = generateUser(response);
@@ -58,13 +69,16 @@ router.post('', (req, res) => {
 });
 
 // 사용자 수정
-router.put('', (req, res) => {
+router.put('/:userId', async (req, res) => {
   const { method, url } = req;
 
   console.log(method, url);
 
   res.send({ user: 'user' });
 });
+
+// 아바타 수정
+router.put('/:userId/avatar', async (req, res) => {});
 
 // 사용자 삭제
 router.delete('', (req, res) => {

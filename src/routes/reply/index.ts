@@ -44,11 +44,11 @@ router.post('/:assetId', verifyToken, async (req, res) => {
   const { content, userId } = body;
 
   if (!assetId) {
-    return res.status(400).send({ message: 'Invalid assetId' });
+    return res.status(400).send({ result: 'Invalid assetId' });
   }
 
   if (!content || !userId) {
-    return res.status(400).send({ message: 'Invalid content or userId' });
+    return res.status(400).send({ result: 'Invalid content or userId' });
   }
 
   const response = await prisma.reply.create({
@@ -60,7 +60,7 @@ router.post('/:assetId', verifyToken, async (req, res) => {
   });
 
   if (!response) {
-    return res.status(400).send({ message: 'Failed to create reply' });
+    return res.status(400).send({ result: 'Failed to create reply' });
   }
 
   const reply: Reply = generateReply(response);
@@ -78,17 +78,17 @@ router.put('/:replyId', verifyToken, async (req, res) => {
   const { content } = body;
 
   if (!replyId) {
-    return res.status(400).send({ message: 'Invalid replyId' });
+    return res.status(400).send({ result: 'Invalid replyId' });
   }
 
   if (!content) {
-    return res.status(400).send({ message: 'Invalid content or userId' });
+    return res.status(400).send({ result: 'Invalid content or userId' });
   }
 
   const response = await prisma.reply.update({ where: { id: replyId }, data: { content } });
 
   if (!response) {
-    return res.status(400).send({ message: 'Failed to update reply' });
+    return res.status(400).send({ result: 'Failed to update reply' });
   }
 
   const reply: Reply = generateReply(response);
@@ -104,7 +104,7 @@ router.delete('/:replyId', verifyToken, async (req, res) => {
   const { replyId } = req.params;
 
   if (!replyId) {
-    return res.status(400).send({ message: 'Invalid replyId' });
+    return res.status(400).send({ result: 'Invalid replyId' });
   }
 
   const response = await prisma.reply.update({
@@ -113,7 +113,7 @@ router.delete('/:replyId', verifyToken, async (req, res) => {
   });
 
   if (!response) {
-    return res.status(400).send({ message: 'Failed to delete reply' });
+    return res.status(400).send({ result: 'Failed to delete reply' });
   }
 
   const reply: Reply = generateReply(response);
