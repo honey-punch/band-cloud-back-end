@@ -9,6 +9,8 @@ export const router = Router();
 const prisma = new PrismaClient();
 
 const storagePath = process.env.STORAGE_PATH || '';
+const thumbnailPath = process.env.THUMBNAIL_PATH || '';
+const avatarPath = process.env.AVATAR_PATH || '';
 
 const ALLOW_AUDIO_TYPE = ['audio/mpeg', 'audio/wav'];
 const ALLOW_IMAGE_TYPE = ['image/png', 'image/jpeg'];
@@ -45,20 +47,22 @@ router.get('/thumbnail/:id', async (req, res) => {
 
   const asset = await prisma.asset.findUnique({ where: { id } });
 
-  if (!asset) {
-    return res.status(404).send({ result: 'Not found. Check id.' });
+  const absoluteFilePath = path.join(storagePath, asset?.thumbnail_path || '/');
+
+  if (!asset || !asset.thumbnail_path || !fs.existsSync(absoluteFilePath)) {
+    const defaultFilePath = path.join(storagePath, thumbnailPath, '/default-thumbnail.jpg');
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.sendFile(defaultFilePath);
+    return;
   }
 
-  const absoluteFilePath = path.join(storagePath, asset.thumbnail_path);
-
-  if (!fs.existsSync(absoluteFilePath)) {
-    return res.status(404).json({ error: 'Thumbnail file not found on disk' });
-  }
-
-  const mimeType = mime.lookup(absoluteFilePath);
+  const mimeType = mime.lookup(absoluteFilePath) || '';
 
   if (!mimeType || !ALLOW_IMAGE_TYPE.includes(mimeType)) {
-    return res.status(400).send('Unsupported image file type');
+    const defaultFilePath = path.join(storagePath, thumbnailPath, '/default-thumbnail.jpg');
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.sendFile(defaultFilePath);
+    return;
   }
 
   res.setHeader('Content-Type', mimeType);
@@ -71,20 +75,22 @@ router.get('/avatar/:id', async (req, res) => {
 
   const user = await prisma.user.findUnique({ where: { id } });
 
-  if (!user) {
-    return res.status(404).send({ result: 'Not found. Check id.' });
+  const absoluteFilePath = path.join(storagePath, user?.avatar_path || '/');
+
+  if (!user || !user.avatar_path || !fs.existsSync(absoluteFilePath)) {
+    const defaultFilePath = path.join(storagePath, avatarPath, '/default-avatar.jpg');
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.sendFile(defaultFilePath);
+    return;
   }
 
-  const absoluteFilePath = path.join(storagePath, user.avatar_path || '');
-
-  if (!fs.existsSync(absoluteFilePath)) {
-    return res.status(404).json({ error: 'Avatar file not found on disk' });
-  }
-
-  const mimeType = mime.lookup(absoluteFilePath);
+  const mimeType = mime.lookup(absoluteFilePath) || '';
 
   if (!mimeType || !ALLOW_IMAGE_TYPE.includes(mimeType)) {
-    return res.status(400).send('Unsupported image file type');
+    const defaultFilePath = path.join(storagePath, avatarPath, '/default-avatar.jpg');
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.sendFile(defaultFilePath);
+    return;
   }
 
   res.setHeader('Content-Type', mimeType);
