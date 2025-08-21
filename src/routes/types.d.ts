@@ -9,8 +9,11 @@ interface ApiResponse<T> {
 }
 
 type SearchQuery = {
+  userId?: string;
+  title?: string;
   isDeleted?: string;
-  limit?: string;
   page?: string;
   size?: string;
+  sort?: string;
+  limit?: number;
 };

@@ -6,9 +6,11 @@ export function generateSearchQuery(query: SearchQuery) {
   const page = Number(query.page) || 0;
   const size = Number(query.size) || 25;
 
-  const where = {
+  const where: { [key: string]: unknown } = {
     is_deleted: isDeleted,
   };
+  if (query.userId) where.user_id = query.userId;
+  if (query.title) where.title = { contains: query.title, mode: 'insensitive' };
 
   const skip = page * size;
   const take = size > limit - skip ? Math.max(limit - skip, 0) : size;
@@ -51,4 +53,8 @@ export function generateReply(prismaReply: PrismaReply): Reply {
     createdDate: prismaReply.created_date.toISOString(),
     isDeleted: prismaReply.is_deleted,
   };
+}
+
+export function camelToSnake(camel: string): string {
+  return camel.replace(/([A-Z])/g, '_$1').toLowerCase();
 }

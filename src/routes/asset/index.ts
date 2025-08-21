@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { PrismaClient } from 'generated/prisma';
-import { generateAsset, generateSearchQuery } from '../utils';
+import { Prisma, PrismaClient } from 'generated/prisma';
+import { camelToSnake, generateAsset, generateSearchQuery } from '../utils';
 import { verifyToken } from '../middleware';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import SortOrder = Prisma.SortOrder;
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -25,10 +26,21 @@ router.get('/search', async (req, res) => {
   const query: SearchQuery = req.query;
   const { where, skip, take, size, page } = generateSearchQuery(query);
 
-  const response = await prisma.asset.findMany({ where, skip, take });
+  const sort = query.sort || 'created_date,desc';
+  const sortArray = sort.split(',');
+  const sortField = sortArray[0];
+  const sortOrder = sortArray[1] as SortOrder;
+
+  const orderBy = {
+    [camelToSnake(sortField)]: sortOrder,
+  };
+
+  const [response, totalCount] = await Promise.all([
+    prisma.asset.findMany({ where, skip, take, orderBy }),
+    prisma.asset.count({ where }),
+  ]);
   const mappedResponse: Asset[] = response.map((asset) => generateAsset(asset));
 
-  const totalCount = await prisma.asset.count({ where });
   const totalPage = Math.ceil(totalCount / size);
   const currentPage = page;
 
