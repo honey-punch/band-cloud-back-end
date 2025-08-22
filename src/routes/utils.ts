@@ -38,7 +38,7 @@ export function generateUser(prismaUser: PrismaUser): User {
     id: prismaUser.id,
     userId: prismaUser.user_id,
     name: prismaUser.name,
-    ...(prismaUser.group_id ? { groupId: prismaUser.group_id } : {}),
+    bandIds: prismaUser.band_ids,
     createdDate: prismaUser.created_date.toISOString(),
     isDeleted: prismaUser.is_deleted,
   };

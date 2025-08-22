@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { PrismaClient } from 'generated/prisma';
-import { generateReply, generateSearchQuery } from '../utils';
+import { Prisma, PrismaClient } from 'generated/prisma';
+import { camelToSnake, generateReply, generateSearchQuery } from '../utils';
 import { verifyToken } from '../middleware';
+import SortOrder = Prisma.SortOrder;
 
 export const router = Router();
 const prisma = new PrismaClient();
@@ -13,14 +14,28 @@ router.get('/:assetId', async (req, res) => {
   const query: SearchQuery = req.query;
   const { where, skip, take, size, page } = generateSearchQuery(query);
 
-  const response = await prisma.reply.findMany({
-    where: { ...where, asset_id: assetId },
-    skip,
-    take,
-  });
+  const sort = query.sort || 'created_date,desc';
+  const sortArray = sort.split(',');
+  const sortField = sortArray[0];
+  const sortOrder = sortArray[1] as SortOrder;
+
+  const orderBy = {
+    [camelToSnake(sortField)]: sortOrder,
+  };
+
+  const [response, totalCount] = await Promise.all([
+    prisma.reply.findMany({
+      where: { ...where, asset_id: assetId },
+      skip,
+      take,
+      orderBy,
+    }),
+    prisma.reply.count({ where: { ...where, asset_id: assetId } }),
+  ]);
+
+  console.log(response, totalCount);
   const mappedResponse: Reply[] = response.map((asset) => generateReply(asset));
 
-  const totalCount = await prisma.asset.count({ where });
   const totalPage = Math.ceil(totalCount / size);
   const currentPage = page;
 

@@ -6,4 +6,5 @@ type User = {
   createdDate: string;
   isDeleted: boolean;
   avatarPath?: string | null;
+  bandIds: string[];
 };

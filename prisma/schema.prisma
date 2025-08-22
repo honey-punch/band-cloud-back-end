@@ -21,26 +21,24 @@ model User {
     user_id         String  @unique
     password        String
     name            String
-    group_id        String?
     created_date    DateTime  @default(now())
     is_deleted      Boolean   @default(false)
     avatar_path     String?
+    band_ids        String[]
 
-    groups          Group?   @relation(fields: [group_id], references: [id])
     assets          Asset[]
     replies         Reply[]
 }
 
-model Group {
-    @@map("groups")
+model Band {
+    @@map("bands")
 
     id            String   @id @unique
     name          String
     description   String?
     created_date  DateTime @default(now())
     isDeleted     Boolean  @default(false)
-
-    users         User[]
+    user_ids      String[]
 }
 
 model Asset {
