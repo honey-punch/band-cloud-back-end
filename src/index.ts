@@ -9,6 +9,7 @@ import { router as userRouter } from './routes/user';
 import { router as authRouter } from './routes/auth';
 import { router as fileRouter } from './routes/file';
 import { router as replyRouter } from './routes/reply';
+import { router as bandRouter } from './routes/band';
 
 const app = express();
 const port = process.env.PORT;
@@ -20,6 +21,7 @@ app.use('/api/asset', assetRouter);
 app.use('/api/auth', authRouter);
 app.use('/file', fileRouter);
 app.use('/api/reply', replyRouter);
+app.use('/api/band', bandRouter);
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);

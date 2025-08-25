@@ -33,12 +33,12 @@ model User {
 model Band {
     @@map("bands")
 
-    id            String   @id @unique
-    name          String
-    description   String?
-    created_date  DateTime @default(now())
-    isDeleted     Boolean  @default(false)
-    user_ids      String[]
+    id              String   @id @unique
+    name            String
+    description     String?
+    created_date    DateTime @default(now())
+    is_deleted      Boolean  @default(false)
+    leader_id       String
 }
 
 model Asset {

@@ -1,4 +1,9 @@
-import { Asset as PrismaAsset, User as PrismaUser, Reply as PrismaReply } from 'generated/prisma';
+import {
+  Asset as PrismaAsset,
+  User as PrismaUser,
+  Reply as PrismaReply,
+  Band as PrismaBand,
+} from 'generated/prisma';
 
 export function generateSearchQuery(query: SearchQuery) {
   const isDeleted = query.isDeleted === 'true';
@@ -52,6 +57,17 @@ export function generateReply(prismaReply: PrismaReply): Reply {
     assetId: prismaReply.asset_id,
     createdDate: prismaReply.created_date.toISOString(),
     isDeleted: prismaReply.is_deleted,
+  };
+}
+
+export function generateBand(prismaBand: PrismaBand): Band {
+  return {
+    id: prismaBand.id,
+    name: prismaBand.name,
+    description: prismaBand.description,
+    createdDate: prismaBand.created_date.toISOString(),
+    isDeleted: prismaBand.is_deleted,
+    leaderId: prismaBand.leader_id,
   };
 }
 

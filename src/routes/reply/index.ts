@@ -33,7 +33,6 @@ router.get('/:assetId', async (req, res) => {
     prisma.reply.count({ where: { ...where, asset_id: assetId } }),
   ]);
 
-  console.log(response, totalCount);
   const mappedResponse: Reply[] = response.map((asset) => generateReply(asset));
 
   const totalPage = Math.ceil(totalCount / size);
