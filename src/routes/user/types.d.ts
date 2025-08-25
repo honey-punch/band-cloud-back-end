@@ -8,3 +8,8 @@ type User = {
   avatarPath?: string | null;
   bandIds: string[];
 };
+
+type AvatarUploadBody = {
+  userId: string;
+  multipartFile: Blob;
+};

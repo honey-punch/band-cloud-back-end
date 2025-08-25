@@ -4,6 +4,9 @@ import { generateSearchQuery, generateUser } from '../utils';
 import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
+import { verifyToken } from '../middleware';
+
+const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
 const storagePath = process.env.STORAGE_PATH || '/';
 const avatarPath = process.env.AVATAR_PATH || '/';
@@ -11,7 +14,7 @@ const tempPath = path.join(storagePath, 'temp');
 if (!fs.existsSync(tempPath)) {
   fs.mkdirSync(tempPath, { recursive: true });
 }
-const upload = multer({ dest: tempPath });
+const upload = multer({ dest: tempPath, limits: { fileSize: MAX_SIZE } });
 
 export const router = Router();
 const prisma = new PrismaClient();
@@ -78,7 +81,47 @@ router.put('/:userId', async (req, res) => {
 });
 
 // 아바타 수정
-router.put('/:userId/avatar', async (req, res) => {});
+router.put('/:userId/avatar', verifyToken, upload.single('multipartFile'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).send({ result: 'Invalid file' });
+  }
+
+  if (req.file.size > MAX_SIZE) {
+    return res.status(400).json({ result: 'Upload only files under 10MB' });
+  }
+
+  const { userId } = req.params;
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) {
+    return res.status(404).send({ result: 'Not found. Check userId.' });
+  }
+
+  const ext = path.extname(req.file.originalname);
+  const actualPath = path.join(storagePath + avatarPath, `${userId}${ext}`);
+  const targetPath = `${avatarPath}/${userId}${ext}`;
+
+  if (user.avatar_path) {
+    const prevPath = path.join(storagePath, user.avatar_path);
+    if (fs.existsSync(prevPath)) {
+      fs.unlinkSync(prevPath);
+    }
+  }
+
+  fs.renameSync(req.file.path, actualPath);
+
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: { avatar_path: targetPath },
+  });
+
+  const responseBody: ApiResponse<User> = {
+    result: generateUser(updatedUser),
+  };
+
+  res.send(responseBody);
+});
 
 // 사용자 삭제
 router.delete('', (req, res) => {
