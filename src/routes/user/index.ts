@@ -72,16 +72,41 @@ router.post('', (req, res) => {
 });
 
 // 사용자 수정
-router.put('/:userId', async (req, res) => {
-  const { method, url } = req;
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
 
-  console.log(method, url);
+  const response = await prisma.user.findUnique({ where: { id } });
 
-  res.send({ user: 'user' });
+  if (!response) {
+    return res.status(404).send({ result: 'Not found. Check userId.' });
+  }
+
+  const body: UpdateUserBody = req.body;
+  const { userId, name, password } = body;
+
+  const updatedUser = await prisma.user.update({
+    where: { id },
+    data: {
+      ...(userId && { user_id: userId }),
+      ...(name && { name }),
+      ...(password && { password }),
+    },
+  });
+
+  if (!updatedUser) {
+    return res.status(400).send({ result: 'Failed to update user' });
+  }
+
+  const user: User = generateUser(updatedUser);
+  const responseBody: ApiResponse<User> = {
+    result: user,
+  };
+
+  res.send(responseBody);
 });
 
 // 아바타 수정
-router.put('/:userId/avatar', verifyToken, upload.single('multipartFile'), async (req, res) => {
+router.put('/:id/avatar', verifyToken, upload.single('multipartFile'), async (req, res) => {
   if (!req.file) {
     return res.status(400).send({ result: 'Invalid file' });
   }
@@ -90,17 +115,17 @@ router.put('/:userId/avatar', verifyToken, upload.single('multipartFile'), async
     return res.status(400).json({ result: 'Upload only files under 10MB' });
   }
 
-  const { userId } = req.params;
+  const { id } = req.params;
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({ where: { id } });
 
   if (!user) {
     return res.status(404).send({ result: 'Not found. Check userId.' });
   }
 
   const ext = path.extname(req.file.originalname);
-  const actualPath = path.join(storagePath + avatarPath, `${userId}${ext}`);
-  const targetPath = `${avatarPath}/${userId}${ext}`;
+  const actualPath = path.join(storagePath + avatarPath, `${id}${ext}`);
+  const targetPath = `${avatarPath}/${id}${ext}`;
 
   if (user.avatar_path) {
     const prevPath = path.join(storagePath, user.avatar_path);
@@ -112,7 +137,7 @@ router.put('/:userId/avatar', verifyToken, upload.single('multipartFile'), async
   fs.renameSync(req.file.path, actualPath);
 
   const updatedUser = await prisma.user.update({
-    where: { id: userId },
+    where: { id },
     data: { avatar_path: targetPath },
   });
 

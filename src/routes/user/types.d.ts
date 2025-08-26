@@ -9,7 +9,8 @@ type User = {
   bandIds: string[];
 };
 
-type AvatarUploadBody = {
-  userId: string;
-  multipartFile: Blob;
+type UpdateUserBody = {
+  userId?: string;
+  name?: string;
+  password?: string;
 };
