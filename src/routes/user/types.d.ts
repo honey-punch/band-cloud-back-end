@@ -13,4 +13,5 @@ type UpdateUserBody = {
   userId?: string;
   name?: string;
   password?: string;
+  bandIds?: string[];
 };

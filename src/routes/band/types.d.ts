@@ -6,3 +6,5 @@ type Band = {
   isDeleted: boolean;
   leaderId: string;
 };
+
+type CreateBandBody = { name: string; leaderId: string; description?: string };

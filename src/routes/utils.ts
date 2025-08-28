@@ -16,6 +16,7 @@ export function generateSearchQuery(query: SearchQuery) {
   };
   if (query.userId) where.user_id = query.userId;
   if (query.title) where.title = { contains: query.title, mode: 'insensitive' };
+  if (query.name) where.name = { contains: query.name, mode: 'insensitive' };
 
   const skip = page * size;
   const take = size > limit - skip ? Math.max(limit - skip, 0) : size;

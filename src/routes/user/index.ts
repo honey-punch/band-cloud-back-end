@@ -82,7 +82,7 @@ router.put('/:id', async (req, res) => {
   }
 
   const body: UpdateUserBody = req.body;
-  const { userId, name, password } = body;
+  const { userId, name, password, bandIds } = body;
 
   const updatedUser = await prisma.user.update({
     where: { id },
@@ -90,6 +90,7 @@ router.put('/:id', async (req, res) => {
       ...(userId && { user_id: userId }),
       ...(name && { name }),
       ...(password && { password }),
+      ...(bandIds && { band_ids: bandIds }),
     },
   });
 

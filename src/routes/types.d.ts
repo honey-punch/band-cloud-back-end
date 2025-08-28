@@ -9,8 +9,14 @@ interface ApiResponse<T> {
 }
 
 type SearchQuery = {
+  // 에셋
   userId?: string;
   title?: string;
+
+  // 밴드
+  name?: string;
+
+  // 공통
   isDeleted?: string;
   page?: string;
   size?: string;

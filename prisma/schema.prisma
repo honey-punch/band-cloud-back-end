@@ -17,7 +17,7 @@ datasource db {
 model User {
     @@map("users")
 
-    id              String  @id @unique
+    id              String  @id @unique @default(uuid())
     user_id         String  @unique
     password        String
     name            String
@@ -33,7 +33,7 @@ model User {
 model Band {
     @@map("bands")
 
-    id              String   @id @unique
+    id              String   @id @unique @default(uuid())
     name            String
     description     String?
     created_date    DateTime @default(now())
