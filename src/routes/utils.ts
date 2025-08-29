@@ -14,9 +14,15 @@ export function generateSearchQuery(query: SearchQuery) {
   const where: { [key: string]: unknown } = {
     is_deleted: isDeleted,
   };
-  if (query.userId) where.user_id = query.userId;
+
+  if (query.userId && Array.isArray(query.userId)) {
+    where.user_id = { in: query.userId };
+  }
   if (query.title) where.title = { contains: query.title, mode: 'insensitive' };
   if (query.name) where.name = { contains: query.name, mode: 'insensitive' };
+  if (query.bandId) {
+    where.band_ids = { has: query.bandId };
+  }
 
   const skip = page * size;
   const take = size > limit - skip ? Math.max(limit - skip, 0) : size;

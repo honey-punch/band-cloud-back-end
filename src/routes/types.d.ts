@@ -10,11 +10,12 @@ interface ApiResponse<T> {
 
 type SearchQuery = {
   // 에셋
-  userId?: string;
+  userId?: string[];
   title?: string;
 
   // 밴드
   name?: string;
+  bandId?: string;
 
   // 공통
   isDeleted?: string;
