@@ -14,6 +14,7 @@ type Asset = {
 type CreateAssetBody = {
   userId: string;
   originalFileName: string;
+  belongBandId?: string;
 };
 
 type UploadBody = {

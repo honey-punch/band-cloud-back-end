@@ -78,7 +78,7 @@ router.get('/:id', async (req, res) => {
 // 에셋 생성
 router.post('', verifyToken, async (req, res) => {
   const body: CreateAssetBody = req.body;
-  const { userId, originalFileName } = body;
+  const { userId, originalFileName, belongBandId } = body;
 
   if (!userId) {
     return res.status(400).send({ result: 'userId is required' });
@@ -91,6 +91,7 @@ router.post('', verifyToken, async (req, res) => {
       asset_path: '',
       thumbnail_path: '',
       original_file_name: originalFileName,
+      ...(belongBandId ? { belong_band_id: belongBandId } : {}),
     },
   });
 

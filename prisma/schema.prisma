@@ -54,6 +54,7 @@ model Asset {
     is_public           Boolean  @default(true)
     description         String?
     is_deleted          Boolean  @default(false)
+    belong_band_id      String?
 
     users               User   @relation(fields: [user_id], references: [id])
     replies             Reply[]

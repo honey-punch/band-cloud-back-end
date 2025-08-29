@@ -19,6 +19,9 @@ export function generateSearchQuery(query: SearchQuery) {
     where.user_id = { in: query.userId };
   }
   if (query.title) where.title = { contains: query.title, mode: 'insensitive' };
+  if (query.isPublic) where.is_public = changeStringToBoolean(query.isPublic);
+  if (query.belongBandId) where.belong_band_id = query.belongBandId;
+
   if (query.name) where.name = { contains: query.name, mode: 'insensitive' };
   if (query.bandId) {
     where.band_ids = { has: query.bandId };
@@ -28,6 +31,10 @@ export function generateSearchQuery(query: SearchQuery) {
   const take = size > limit - skip ? Math.max(limit - skip, 0) : size;
 
   return { where, skip, take, size, page };
+}
+
+function changeStringToBoolean(value: string) {
+  return value === 'true';
 }
 
 export function generateAsset(prismaAsset: PrismaAsset): Asset {

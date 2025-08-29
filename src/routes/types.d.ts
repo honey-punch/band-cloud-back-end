@@ -12,6 +12,8 @@ type SearchQuery = {
   // 에셋
   userId?: string[];
   title?: string;
+  isPublic?: string;
+  belongBandId?: string;
 
   // 밴드
   name?: string;
