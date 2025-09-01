@@ -15,9 +15,14 @@ export function generateSearchQuery(query: SearchQuery) {
     is_deleted: isDeleted,
   };
 
-  if (query.userId && Array.isArray(query.userId)) {
-    where.user_id = { in: query.userId };
+  if (query.userId) {
+    if (Array.isArray(query.userId)) {
+      where.user_id = { in: query.userId };
+    } else {
+      where.user_id = { in: [query.userId] };
+    }
   }
+
   if (query.title) where.title = { contains: query.title, mode: 'insensitive' };
   if (query.isPublic) where.is_public = changeStringToBoolean(query.isPublic);
   if (query.belongBandId) where.belong_band_id = query.belongBandId;

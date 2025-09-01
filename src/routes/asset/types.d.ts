@@ -17,6 +17,12 @@ type CreateAssetBody = {
   belongBandId?: string;
 };
 
+type UpdateAssetBody = {
+  title?: string;
+  description?: string;
+  isPublic?: boolean;
+};
+
 type UploadBody = {
   assetId: string;
   multipartFile: Blob;

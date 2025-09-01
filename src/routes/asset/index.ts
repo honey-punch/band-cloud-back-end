@@ -142,7 +142,38 @@ router.post('/upload', verifyToken, upload.single('multipartFile'), async (req, 
 });
 
 // 에셋 수정
-router.put('/:assetId', verifyToken, async (req, res) => {});
+router.put('/:assetId', verifyToken, async (req, res) => {
+  const { assetId } = req.params;
+
+  const response = await prisma.asset.findUnique({ where: { id: assetId } });
+
+  if (!response) {
+    return res.status(404).send({ result: 'Not found. Check assetId.' });
+  }
+
+  const body: UpdateAssetBody = req.body;
+  const { title, description, isPublic } = body;
+
+  const updatedAsset = await prisma.asset.update({
+    where: { id: assetId },
+    data: {
+      ...(title && { title }),
+      ...(description && { description }),
+      ...(isPublic !== undefined && { is_public: isPublic }),
+    },
+  });
+
+  if (!updatedAsset) {
+    return res.status(400).send({ result: 'Failed to update asset' });
+  }
+
+  const asset: Asset = generateAsset(updatedAsset);
+  const responseBody: ApiResponse<Asset> = {
+    result: asset,
+  };
+
+  res.send(responseBody);
+});
 
 // 에셋 썸네일 수정
 router.put('/:assetId/thumbnail', verifyToken, upload.single('multipartFile'), async (req, res) => {
